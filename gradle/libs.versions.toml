@@ -1,0 +1,15 @@
+# gradle/libs.versions.toml
+
+[versions]
+akka = "2.9.0"
+scalaBinary = "2.13"
+netty = "4.2.0.Final"
+
+[libraries]
+netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
+akka-bom = { module = "com.typesafe.akka:akka-bom_${scalaBinary}", version.ref = "akka" }
+akka-actor = { module = "com.typesafe.akka:akka-actor_${scalaBinary}", version.ref = "akka" }
+akka-actor-typed = { module = "com.typesafe.akka:akka-actor-typed_${scalaBinary}", version.ref = "akka" }
+
+[plugins]
+
