@@ -105,26 +105,32 @@ class WebSocketHandler: SimpleChannelInboundHandler<Any>() {
         // 正式处理消息
         val flag = handleHttpMessage(ctx,contentStr, msgCode)
         var content = "{\"code\":200,\"msg\":\"ok\"}"
-        if (!flag) {
+        if (flag == null || !flag) {
             content = "{\"code\":500,\"msg\":\"fail\"}"
         }
-
+        val response: FullHttpResponse = buildFullHttpResponse(HttpResponseStatus.OK, content)
+        response.headers().set("Content-Type", "application/json; charset=utf-8")
+        sendHttpResponse(ctx, requestMsg, response)
     }
+
 
     private fun handleHttpMessage(
         ctx: ChannelHandlerContext,
         content:String,
         msgCode: Int,
-    ): Boolean {
+    ): Boolean? {
         val contentByteArr = content.toByteArray(CharsetUtil.UTF_8)
-        return webSocketDispatcher.handle(msgCode, contentByteArr, ctx);
+        return webSocketDispatcher?.handle(msgCode, contentByteArr, ctx);
     }
 
 
+    /**
+     * 发送HTTP响应
+     */
     private fun sendHttpResponse(
         ctx: ChannelHandlerContext,
         request: FullHttpRequest,
-        response: DefaultFullHttpResponse,
+        response: FullHttpResponse,
     ) {
         if (response.status().code() != HttpURLConnection.HTTP_OK) {
             val buf = Unpooled.copiedBuffer(response.status().toString(), CharsetUtil.UTF_8)
@@ -147,7 +153,7 @@ class WebSocketHandler: SimpleChannelInboundHandler<Any>() {
         }
     }
 
-    private fun buildFullHttpResponse(responseStatus: HttpResponseStatus, content: String): DefaultFullHttpResponse {
+    private fun buildFullHttpResponse(responseStatus: HttpResponseStatus, content: String): DefaultFullHttpResponse{
         val response = DefaultFullHttpResponse(HTTP_1_1, responseStatus, Unpooled.wrappedBuffer(content.toByteArray(CharsetUtil.UTF_8)))
         response.headers().set("Access-Control-Allow-Origin", "*")
         response.headers().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -155,7 +161,5 @@ class WebSocketHandler: SimpleChannelInboundHandler<Any>() {
         )
         response.headers().setInt("Content-Length", response.content().readableBytes())
         return response
-
     }
-
 }

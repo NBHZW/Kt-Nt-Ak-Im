@@ -48,6 +48,8 @@ class NettyServer {
     }
 
     private fun initHandler(setting: AkImSetting) {
-
+        webSocketServerInitializer.setWebSocketDispatcherInformation(setting.handlerMap,setting.businessInfoProvider)
+        webSocketServerInitializer.setHearBeat(setting.hearBeat)
+        tcpServerInitializer
     }
 }
